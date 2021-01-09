@@ -29,6 +29,7 @@ import { validateOptions } from './option.validator';
 import { RMQMetadataAccessor } from './rmq-metadata.accessor';
 import { RmqErrorService } from './rmq-error.service';
 import { getUniqId } from './utils/get-uniq-id';
+import { getTopicName } from './utils/get-topic-name';
 
 @Injectable()
 export class RMQService implements OnModuleInit {
@@ -204,7 +205,7 @@ export class RMQService implements OnModuleInit {
 		this.routes = this.routes ?? [];
 		if (this.routes.length > 0) {
 			this.routes.map(async (r) => {
-				await channel.bindQueue(this.options.queueName, this.options.exchangeName, r);
+				await channel.bindQueue(this.options.queueName, this.options.exchangeName, getTopicName(r));
 			});
 		}
 		this.logRMQRoutes();
@@ -214,7 +215,7 @@ export class RMQService implements OnModuleInit {
 				this.logger.debug(`Received ▼ [${msg.fields.routingKey}] ${msg.content}`);
 				if (this.isTopicExists(msg.fields.routingKey)) {
 					msg = await this.useMiddleware(msg);
-					requestEmitter.emit(msg.fields.routingKey, msg);
+					requestEmitter.emit(getTopicName(msg.fields.routingKey), msg);
 				} else {
 					this.reply('', msg, new RMQError(ERROR_NO_ROUTE, ERROR_TYPE.TRANSPORT));
 				}
@@ -251,7 +252,7 @@ export class RMQService implements OnModuleInit {
 	}
 
 	private isTopicExists(topic: string): boolean {
-		return !!this.routes.find((x) => x === topic);
+		return !!this.routes.find((x) => x === getTopicName(topic));
 	}
 
 	private async useMiddleware(msg: Message) {

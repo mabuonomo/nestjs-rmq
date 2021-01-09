@@ -21,6 +21,8 @@ export const DEFAULT_TIMEOUT: number = 30000;
 export const DEFAULT_PREFETCH_COUNT: number = 0;
 export const INITIALIZATION_STEP_DELAY: number = 300;
 
+export const TAG = 'RMQ_TAG_';
+
 export enum ERROR_TYPE {
 	TRANSPORT = 'TRANSPORT',
 	RMQ = 'RMQ',
